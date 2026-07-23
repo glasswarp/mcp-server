@@ -1,0 +1,15 @@
+name: Feature request
+description: Suggest an improvement for the MCP server
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / use case
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
