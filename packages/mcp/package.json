@@ -1,6 +1,6 @@
 {
   "name": "@glasswarp/mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or npx @glasswarp/mcp. BYOH: your machine, your key, you bring the model.",
   "license": "Apache-2.0",
   "type": "module",
