@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.glasswarp/mcp-server",
   "title": "Glasswarp",
-  "description": "Eyes and hands on real Windows PCs you own — observe, click, type via Glasswarp API. You bring the brain.",
+  "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or npx @glasswarp/mcp. BYOH: your machine, your key, you bring the model.",
   "version": "0.1.0",
   "websiteUrl": "https://www.glasswarp.com/mcp",
   "repository": {

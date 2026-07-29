@@ -1,6 +1,6 @@
 # Glasswarp MCP Server
 
-**Eyes and hands on real Windows PCs you own.** Remote [Model Context Protocol](https://modelcontextprotocol.io) server over the Glasswarp Platform API. Agents observe and control paired machines; you supply the brain (task logic).
+**See and control a real Windows PC you own — from any MCP client, locally or remotely.** [Model Context Protocol](https://modelcontextprotocol.io) over the Glasswarp Platform API: observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or `npx @glasswarp/mcp`. BYOH: your machine, your key; you bring the model (task logic).
 
 | | |
 | --- | --- |

@@ -1,7 +1,7 @@
 {
   "name": "@glasswarp/mcp",
   "version": "0.1.1",
-  "description": "Allow AI agents to see and control a real Windows PC you own — observe, click/type/drag/scroll, launch apps, Live View. Local stdio (npx @glasswarp/mcp); BYOH, you bring the model.",
+  "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or npx @glasswarp/mcp. BYOH: your machine, your key, you bring the model.",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {

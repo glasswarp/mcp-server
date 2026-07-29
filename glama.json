@@ -1,7 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "displayName": "Glasswarp",
-  "description": "Allow AI agents to see and control a real Windows PC you own: observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. BYOH — your machine, your key. MCP hosted or npx @glasswarp/mcp; you bring the model.",
+  "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or npx @glasswarp/mcp. BYOH: your machine, your key, you bring the model.",
   "maintainers": ["saferelay"],
   "categories": ["OS Automation", "Autonomous Agents"],
   "platforms": ["windows"],

@@ -4,7 +4,7 @@
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
-  "description": "Remote MCP server — eyes and hands on real Windows PCs via the Glasswarp Platform API",
+  "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Hosted MCP or npx @glasswarp/mcp. BYOH: your machine, your key, you bring the model.",
   "homepage": "https://www.glasswarp.com/mcp",
   "repository": {
     "type": "git",
