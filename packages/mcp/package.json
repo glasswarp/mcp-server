@@ -1,6 +1,6 @@
 {
   "name": "@glasswarp/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local stdio MCP bridge to Glasswarp — eyes and hands on real Windows PCs via https://mcp.glasswarp.com",
   "license": "Apache-2.0",
   "type": "module",

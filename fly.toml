@@ -6,7 +6,7 @@ app = "glasswarp-mcp"
 primary_region = "iad"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "Dockerfile.http"
 
 [env]
   HOST = "0.0.0.0"

@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
  * Local stdio → remote Glasswarp MCP (Streamable HTTP).
- * Thin launcher around mcp-remote; requires GLASSWARP_API_KEY.
+ * Thin launcher around mcp-remote.
+ *
+ * GLASSWARP_API_KEY optional for discovery (initialize / tools/list).
+ * Required for tools/call against a rig.
  */
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
@@ -15,37 +18,29 @@ Usage:
   GLASSWARP_API_KEY=gw_… npx @glasswarp/mcp
 
 Env:
-  GLASSWARP_API_KEY   required — API key from https://www.glasswarp.com/console
+  GLASSWARP_API_KEY   recommended — API key from https://www.glasswarp.com/console
   GLASSWARP_MCP_URL   optional — default ${DEFAULT_URL}
   GLASSWARP_AUTH      optional — full "Bearer gw_…" (overrides API_KEY if set)
 
-Cursor mcp.json example:
-  {
-    "mcpServers": {
-      "glasswarp": {
-        "command": "npx",
-        "args": ["-y", "@glasswarp/mcp"],
-        "env": { "GLASSWARP_API_KEY": "gw_live_sk_…" }
-      }
-    }
-  }
+Without a key, discovery (initialize / tools/list) still works; tool calls need a key.
 
 Docs: https://docs.glasswarp.com/get-started/mcp
 `);
-  process.exit(1);
 }
 
 const raw =
   process.env.GLASSWARP_AUTH?.trim() ||
   process.env.GLASSWARP_API_KEY?.trim() ||
   "";
-if (!raw || raw.includes("REPLACE") || raw === "gw_…" || raw === "gw_") {
+const hasKey =
+  !!raw && !raw.includes("REPLACE") && raw !== "gw_…" && raw !== "gw_";
+
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
   usage();
+  process.exit(0);
 }
 
-const auth = /^Bearer\s+/i.test(raw) ? raw : `Bearer ${raw}`;
 const url = (process.env.GLASSWARP_MCP_URL || DEFAULT_URL).trim();
-
 const require = createRequire(import.meta.url);
 let proxyJs;
 try {
@@ -57,14 +52,20 @@ try {
   process.exit(1);
 }
 
-const child = spawn(
-  process.execPath,
-  [proxyJs, url, "--header", `Authorization:${auth}`],
-  {
-    stdio: "inherit",
-    env: process.env,
-  },
-);
+const args = [proxyJs, url];
+if (hasKey) {
+  const auth = /^Bearer\s+/i.test(raw) ? raw : `Bearer ${raw}`;
+  args.push("--header", `Authorization:${auth}`);
+} else {
+  console.error(
+    "glasswarp-mcp: no GLASSWARP_API_KEY — discovery only. Create a key at https://www.glasswarp.com/signup → console.",
+  );
+}
+
+const child = spawn(process.execPath, args, {
+  stdio: "inherit",
+  env: process.env,
+});
 
 child.on("exit", (code, signal) => {
   if (signal) {
