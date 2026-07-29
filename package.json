@@ -1,6 +1,6 @@
 {
   "name": "@glasswarp/mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -23,8 +23,9 @@
   ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && cp src/ways-to-run-agents-policy.md dist/ways-to-run-agents-policy.md",
     "start": "node dist/index.js",
+    "start:stdio": "node packages/mcp/bin/glasswarp-mcp.js",
     "test": "node --import tsx --test src/auth.test.ts src/discovery.test.ts src/demos.test.ts src/policy-sync.test.ts src/observe-shape.test.ts"
   },
   "engines": {
