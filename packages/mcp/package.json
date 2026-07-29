@@ -1,0 +1,42 @@
+{
+  "name": "@glasswarp/mcp",
+  "version": "0.1.0",
+  "description": "Local stdio MCP bridge to Glasswarp — eyes and hands on real Windows PCs via https://mcp.glasswarp.com",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "glasswarp-mcp": "./bin/glasswarp-mcp.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "homepage": "https://www.glasswarp.com/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glasswarp/mcp-server.git",
+    "directory": "packages/mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/glasswarp/mcp-server/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "glasswarp",
+    "windows",
+    "computer-use",
+    "desktop-automation",
+    "stdio"
+  ],
+  "dependencies": {
+    "mcp-remote": "^0.1.38"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

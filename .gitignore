@@ -1,6 +1,7 @@
-node_modules/
-dist/
-.env
-.env.*
 !.env.example
 *.pem
+.env
+.env.*
+dist/
+node_modules/
+packages/*/node_modules/

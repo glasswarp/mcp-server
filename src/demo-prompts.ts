@@ -10,7 +10,7 @@ import * as z from "zod/v4";
 import { formatDemoCard, getDemo } from "./demos.js";
 
 const FRAMING = `
-Framing (docs.glasswarp.com messaging):
+Framing (PRODUCT_MISSION §0):
   ✅ "An agent did X on a real Windows PC through the Glasswarp API."
   ❌ "Glasswarp did X."
 `.trim();

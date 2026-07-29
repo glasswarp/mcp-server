@@ -1,0 +1,34 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.glasswarp/mcp-server",
+  "title": "Glasswarp",
+  "description": "Eyes and hands on real Windows PCs you own — observe, click, type via Glasswarp API. You bring the brain.",
+  "version": "0.1.0",
+  "websiteUrl": "https://www.glasswarp.com/mcp",
+  "repository": {
+    "url": "https://github.com/glasswarp/mcp-server",
+    "source": "github",
+    "id": "1310241249"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.glasswarp.com/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer Glasswarp API key (gw_…). Create one at https://www.glasswarp.com/console → API Keys.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "documentation": "https://docs.glasswarp.com/get-started/mcp",
+      "homepage": "https://www.glasswarp.com/mcp"
+    }
+  }
+}

@@ -16,6 +16,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    public body: Record<string, unknown> | null = null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -125,12 +126,20 @@ export class GlasswarpApi {
       json = null;
     }
     if (!res.ok) {
+      const errObj = json as { error?: string; message?: string } | null;
       const err =
-        (json as { error?: string } | null)?.error ||
+        errObj?.message ||
+        errObj?.error ||
         text ||
         res.statusText ||
         "request failed";
-      throw new ApiError(res.status, err);
+      throw new ApiError(
+        res.status,
+        err,
+        json && typeof json === "object"
+          ? (json as Record<string, unknown>)
+          : null,
+      );
     }
     return json as T;
   }

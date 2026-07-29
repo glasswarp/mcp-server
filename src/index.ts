@@ -3,11 +3,16 @@
  *
  * Auth: Authorization: Bearer <glasswarp_api_key>
  * Spec: https://modelcontextprotocol.io — Streamable HTTP, stateless.
+ *
+ * Directory health probes (Glama et al.) POST initialize / tools/list without
+ * a key — those discovery methods are allowed; tools/call and other methods
+ * still require a Bearer key.
  */
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 
 import { extractBearerApiKey, redactKey } from "./auth.js";
+import { allowsUnauthenticatedDiscovery } from "./discovery.js";
 import { createGlasswarpMcpServer } from "./tools.js";
 
 const PORT = Number(process.env.PORT || 8787);
@@ -27,9 +32,16 @@ const app = createMcpExpressApp({
   allowedHosts,
 });
 
-app.get("/healthz", (_req, res) => {
+function health(
+  _req: import("express").Request,
+  res: import("express").Response,
+) {
   res.status(200).json({ ok: true, service: "glasswarp-mcp" });
-});
+}
+
+app.get("/healthz", health);
+app.get("/health", health);
+app.get("/ping", health);
 
 // Cursor probes OAuth discovery for remote MCP. We auth with Bearer API keys
 // only — return 404 so clients fall back to configured Authorization headers.
@@ -46,7 +58,7 @@ for (const path of [
 
 app.post("/mcp", async (req, res) => {
   const apiKey = extractBearerApiKey(req);
-  if (!apiKey) {
+  if (!apiKey && !allowsUnauthenticatedDiscovery(req.body)) {
     // No WWW-Authenticate / resource_metadata — avoid triggering Cursor's OAuth dance.
     res.status(401).json({
       jsonrpc: "2.0",
@@ -61,7 +73,11 @@ app.post("/mcp", async (req, res) => {
   }
 
   // Never log the full key.
-  console.info(`[mcp] request key=${redactKey(apiKey)}`);
+  console.info(
+    apiKey
+      ? `[mcp] request key=${redactKey(apiKey)}`
+      : "[mcp] request anonymous discovery",
+  );
 
   const server = createGlasswarpMcpServer(apiKey);
   try {

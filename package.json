@@ -1,15 +1,31 @@
 {
   "name": "@glasswarp/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
-  "description": "Remote MCP server \u2014 thin translation layer over the Glasswarp Platform API",
+  "description": "Remote MCP server — eyes and hands on real Windows PCs via the Glasswarp Platform API",
+  "homepage": "https://www.glasswarp.com/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glasswarp/mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/glasswarp/mcp-server/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "windows",
+    "computer-use",
+    "desktop-automation",
+    "glasswarp"
+  ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "node --import tsx --test src/auth.test.ts src/demos.test.ts src/policy-sync.test.ts"
+    "test": "node --import tsx --test src/auth.test.ts src/discovery.test.ts src/demos.test.ts src/policy-sync.test.ts src/observe-shape.test.ts"
   },
   "engines": {
     "node": ">=20"
@@ -24,13 +40,5 @@
     "@types/node": "^22.15.30",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/glasswarp/mcp-server.git"
-  },
-  "bugs": {
-    "url": "https://github.com/glasswarp/mcp-server/issues"
-  },
-  "homepage": "https://docs.glasswarp.com/get-started/mcp"
+  }
 }

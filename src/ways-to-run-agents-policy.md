@@ -34,8 +34,9 @@ Multi-step work, games, workflows, "solve / clear / finish X":
   direct MCP tools.
 - If they accept: scaffolded agents must follow SKILL.md
   (https://www.glasswarp.com/SKILL.md) — `end_session` in a `finally` block, bounded
-  loops, observe-verify between actions. Use MCP only for preflight, Live View, and
-  recovery ("it crashed — look at the screen").
+  loops, observe-verify between actions, and re-observe + re-resolve targets (never
+  hardcode target ids). Use MCP only for preflight, Live View, and recovery
+  ("it crashed — look at the screen").
 
 **Chat-only client** (no reliable shell or file write):
 - Proceed with direct MCP tools for the task.
@@ -51,27 +52,37 @@ them to the user; just describe what you will do.
 - Resources: `glasswarp://demos`, `glasswarp://demos/{id}`
 
 ## Working hygiene
+- Prefer `send_actions` for any predictable multi-step sequence (click field → type →
+  tab → shortcut). Solo `click_target` / `type_text` / `send_keys` are for one-off
+  acts; chaining them costs a chat turn each.
 - Plan ahead when the next steps are predictable. After an `observe`, if you can
   confidently predict the next 3–6 actions (menu paths, dialog fields, keyboard
   shortcuts, typing into a field you just clicked), send them as one batch via
-  `send_actions` (prefer `observe_after=true`) — or sequential tools — then
-  `observe` once to verify the whole sequence, not after every individual action.
-  Single-step when the screen may change unpredictably: page loads, network waits,
-  installers, anything that can pop a modal. If the verifying `observe` shows
-  something unexpected, re-plan from there.
+  `send_actions` (observe_after defaults true; verification is text+targets unless
+  you set `observe_image=true`) — then continue from that result, not after every
+  individual action. Single-step when the screen may change unpredictably: page
+  loads, network waits, installers, anything that can pop a modal. If the verifying
+  observe shows something unexpected, re-plan from there.
 - Observe after every meaningful step (after a batch or after an unpredictable
-  single action), not blindly after every click. If `observe` reports no change
-  since your last frame (`changed: false`), do not re-analyze the image — the
-  screen has not changed. Re-check or wait instead. If dirty data is missing
-  (`dirty` is null / unavailable — e.g. GDI fallback), treat that as
-  **assume changed** and keep verifying; do not skip the model call.
-- For simple verification (did the dialog close? is the field focused?), call
-  `observe` with `image=false` — it is much faster (text + targets only).
-  Request the image when you need to read or judge the screen visually.
-  Verification-grade JPEGs: `max_width=960`, quality ~60.
+  single action), not blindly after every click. `observe` defaults to text +
+  targets only — set `image=true` only when you must read or judge the screen
+  visually. If `observe` reports no change since your last frame (`changed: false`),
+  do not re-analyze — the server omits any JPEG even if `image=true`. Re-check or
+  wait instead. If dirty data is missing (`dirty` is null / unavailable — e.g. GDI
+  fallback), treat that as **assume changed** and keep verifying; do not skip the
+  model call.
+- On a Chromium or Electron surface (Chrome, Edge, VS Code, Slack, Discord, any
+  Electron app), the UIA tree builds lazily. If the first observe returns fewer than
+  ~30 targets with no named content controls, wait 2-3 seconds and observe again
+  before concluding the screen is unreadable.
+- Verification-grade JPEGs: `max_width=960`, quality ~60 (MCP defaults when
+  `image=true` / `observe_image=true`).
 - Prefer `click_target` (numbered targets from the latest observe) over `click_xy`.
   `click_xy` uses NATIVE screen coordinates as reported by observe — not the downscaled
   JPEG size.
+- Target ids are valid for the observe that produced them. Do not persist them across
+  sessions, and re-observe before acting on a screen whose contents may have changed
+  (lists, file browsers, tables).
 - Always `end_session` when done or when abandoning a task. Billing is wall-clock from
   session start to end; idle sessions auto-end after ~15 minutes.
 - If `start_session` fails on a concurrency limit, tell the user which session holds

@@ -34,7 +34,7 @@ export const DEMO_CONTRACTS: DemoRunContract[] = [
     install: 'pip install "glasswarp[demos]"',
     command: "glasswarp-demo minesweeper",
     command_alt: "python -m glasswarp.demos minesweeper",
-    repo_fallback: "python -m glasswarp.demos  # or: glasswarp-demo minesweeper_solver_demo.py",
+    repo_fallback: "cd sdk/python && python examples/minesweeper_solver_demo.py",
     needs: [
       "GLASSWARP_API_KEY (same key as MCP)",
       "Online rig with API access enabled",
@@ -47,7 +47,7 @@ export const DEMO_CONTRACTS: DemoRunContract[] = [
     id: "mona-lisa",
     title: "Mona Lisa (Paint)",
     summary:
-      "Paint a simplified Mona Lisa mosaic in Microsoft Paint and save it to the Desktop.",
+      "Paint a ~40×60 / 18-color Mona Lisa mosaic in Microsoft Paint and save it to the Desktop.",
     framing:
       'Say: "an agent painted the Mona Lisa on a real PC through the Glasswarp API" — never "Glasswarp painted it."',
     when: "Many paint/fill steps — use the packaged mosaic planner, not an LLM brush loop.",
@@ -55,7 +55,7 @@ export const DEMO_CONTRACTS: DemoRunContract[] = [
     install: 'pip install "glasswarp[demos]"',
     command: "glasswarp-demo mona-lisa",
     command_alt: "python -m glasswarp.demos mona-lisa",
-    repo_fallback: "python -m glasswarp.demos  # or: glasswarp-demo paint_mona_lisa_demo.py",
+    repo_fallback: "cd sdk/python && python examples/paint_mona_lisa_demo.py",
     needs: [
       "GLASSWARP_API_KEY (same key as MCP)",
       "Online rig with API access enabled",
@@ -75,7 +75,7 @@ export const DEMO_CONTRACTS: DemoRunContract[] = [
     install: 'pip install "glasswarp[demos]"',
     command: "glasswarp-demo paint",
     command_alt: "python -m glasswarp.demos paint",
-    repo_fallback: "python -m glasswarp.demos  # or: glasswarp-demo paint_mark_demo.py",
+    repo_fallback: "cd sdk/python && python examples/paint_mark_demo.py",
     needs: [
       "GLASSWARP_API_KEY",
       "Online rig with API access enabled",
@@ -94,7 +94,7 @@ export const DEMO_CONTRACTS: DemoRunContract[] = [
     install: 'pip install "glasswarp[demos]"',
     command: "glasswarp-demo notepad",
     command_alt: "python -m glasswarp.demos notepad",
-    repo_fallback: "python -m glasswarp.demos  # or: glasswarp-demo notepad_uia_demo.py",
+    repo_fallback: "cd sdk/python && python examples/notepad_uia_demo.py",
     needs: [
       "GLASSWARP_API_KEY",
       "Online rig with API access enabled",
@@ -128,7 +128,7 @@ export function formatDemoCard(d: DemoRunContract): string {
     "## Run (client machine with API key)",
     "```bash",
     d.install,
-    "export GLASSWARP_API_KEY=gw_live_sk_REPLACE_WITH_YOUR_KEY",
+    "export GLASSWARP_API_KEY=gw_live_sk_...",
     d.command,
     `# or: ${d.command_alt}`,
     "```",
