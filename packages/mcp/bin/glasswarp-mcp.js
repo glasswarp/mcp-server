@@ -8,6 +8,7 @@
  */
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
+import { join } from "node:path";
 
 const DEFAULT_URL = "https://mcp.glasswarp.com/mcp";
 
@@ -41,13 +42,23 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
 }
 
 const url = (process.env.GLASSWARP_MCP_URL || DEFAULT_URL).trim();
-const require = createRequire(import.meta.url);
+const requireFromBin = createRequire(import.meta.url);
+const requireFromCwd = createRequire(join(process.cwd(), "package.json"));
+
+function resolveProxy() {
+  try {
+    return requireFromBin.resolve("mcp-remote/dist/proxy.js");
+  } catch {
+    return requireFromCwd.resolve("mcp-remote/dist/proxy.js");
+  }
+}
+
 let proxyJs;
 try {
-  proxyJs = require.resolve("mcp-remote/dist/proxy.js");
+  proxyJs = resolveProxy();
 } catch {
   console.error(
-    "glasswarp-mcp: could not resolve mcp-remote. Reinstall with: npm i @glasswarp/mcp",
+    "glasswarp-mcp: could not resolve mcp-remote. Run npm/pnpm install (needs mcp-remote).",
   );
   process.exit(1);
 }
