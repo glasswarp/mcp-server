@@ -1,0 +1,22 @@
+{
+  "name": "glasswarp",
+  "version": "0.1.0",
+  "description": "See and control a real Windows PC you own — from any MCP client, locally or remotely. Observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View.",
+  "author": {
+    "name": "Glasswarp",
+    "email": "hello@glasswarp.com",
+    "url": "https://www.glasswarp.com"
+  },
+  "homepage": "https://www.glasswarp.com/mcp",
+  "repository": "https://github.com/glasswarp/mcp-server",
+  "license": "Apache-2.0",
+  "logo": "https://www.glasswarp.com/glasswarp-icon.png",
+  "keywords": [
+    "mcp",
+    "windows",
+    "computer-use",
+    "desktop-automation",
+    "observe",
+    "byoh"
+  ]
+}

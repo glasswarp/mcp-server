@@ -2,6 +2,8 @@
 
 Local **stdio** bridge to the Glasswarp remote MCP server. Same eyes-and-hands tools as `https://mcp.glasswarp.com/mcp` — no Windows agent bundled here; you still pair a rig in the [console](https://www.glasswarp.com/console) (sign up at [glasswarp.com/signup](https://www.glasswarp.com/signup) if needed).
 
+[Add to Cursor](https://cursor.com/en/install-mcp?name=glasswarp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBnbGFzc3dhcnAvbWNwIl0sImVudiI6eyJHTEFTU1dBUlBfQVBJX0tFWSI6IllPVVJfQVBJX0tFWSJ9fQ%3D%3D) — then set `GLASSWARP_API_KEY`.
+
 ```bash
 npx -y @glasswarp/mcp
 ```

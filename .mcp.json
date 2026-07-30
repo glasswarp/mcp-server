@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "glasswarp": {
+      "command": "npx",
+      "args": ["-y", "@glasswarp/mcp"],
+      "env": {
+        "GLASSWARP_API_KEY": "${env:GLASSWARP_API_KEY}"
+      }
+    }
+  }
+}

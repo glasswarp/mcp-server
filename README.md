@@ -22,6 +22,11 @@ Say *“List my rigs.”* You need a **USABLE** machine.
 
 ## Connect (Cursor)
 
+[Add to Cursor](https://cursor.com/en/install-mcp?name=glasswarp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBnbGFzc3dhcnAvbWNwIl0sImVudiI6eyJHTEFTU1dBUlBfQVBJX0tFWSI6IllPVVJfQVBJX0tFWSJ9fQ%3D%3D)
+— then set `GLASSWARP_API_KEY` to your console key.
+
+Or paste:
+
 ```json
 {
   "mcpServers": {
