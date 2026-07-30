@@ -66,7 +66,7 @@ Package source: [`sdk/mcp`](../sdk/mcp) → npm `@glasswarp/mcp`.
 | Windows | `npx` (or full `npx.cmd`) | (default Node) |
 | Linux | `/usr/bin/npx` (or nvm path) | `/usr/bin:/bin` |
 
-Restart MCP, then call `list_rigs`.
+Restart MCP, then call `rigs.list`.
 
 ### Direct remote URL (clients that support headers)
 
@@ -86,7 +86,7 @@ Restart MCP, then call `list_rigs`.
 ## Standard workflow
 
 ```
-list_rigs → start_session → observe → act (prefer send_actions) → end_session
+rigs.list → session.start → screen.observe → act (prefer input.send_actions) → session.end
 ```
 
 Short tasks stay on MCP. Longer tasks: offer a scaffolded SDK agent / `glasswarp-demo` when the client can run code — never impose it.
@@ -95,15 +95,15 @@ Short tasks stay on MCP. Longer tasks: offer a scaffolded SDK agent / `glasswarp
 
 | Tool | Role |
 | --- | --- |
-| `list_rigs` | Find a USABLE paired Windows machine |
-| `start_session` / `end_session` | Metered session lifecycle (always end) |
-| `observe` | UIA targets + text (JPEG opt-in via `image=true`) |
-| `click_target` / `click_xy` / `type_text` / `send_keys` / `drag` / `scroll` | Single acts |
-| `send_actions` | Preferred multi-step batch (1–10) |
-| `launch_app` | Start an exe on the rig |
-| `get_live_view_url` | Owner Live View link |
-| `get_session_status` | Billing / status signals |
-| `list_demos` / `get_demo` | Showcase run contracts (no solver execution) |
+| `rigs.list` | Find a USABLE paired Windows machine |
+| `session.start` / `session.end` | Metered session lifecycle (always end) |
+| `screen.observe` | UIA targets + text (JPEG opt-in via `image=true`) |
+| `input.click_target` / `input.click_xy` / `input.type_text` / `input.send_keys` / `input.drag` / `input.scroll` | Single acts |
+| `input.send_actions` | Preferred multi-step batch (1–10) |
+| `app.launch` | Start an exe on the rig |
+| `session.live_view` | Owner Live View link |
+| `session.status` | Billing / status signals |
+| `demos.list` / `demos.get` | Showcase run contracts (no solver execution) |
 
 ## Run locally (dev)
 

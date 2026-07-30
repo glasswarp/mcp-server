@@ -34,7 +34,7 @@ describe("allowsUnauthenticatedDiscovery", () => {
         jsonrpc: "2.0",
         id: 3,
         method: "tools/call",
-        params: { name: "list_rigs", arguments: {} },
+        params: { name: "rigs.list", arguments: {} },
       }),
       false,
     );
@@ -56,7 +56,7 @@ describe("allowsUnauthenticatedDiscovery", () => {
           jsonrpc: "2.0",
           id: 5,
           method: "tools/call",
-          params: { name: "list_rigs", arguments: {} },
+          params: { name: "rigs.list", arguments: {} },
         },
       ]),
       false,

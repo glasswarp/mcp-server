@@ -1,7 +1,7 @@
 /**
  * MCP prompts for showcase demos.
  *
- * Prefer get_demo → glasswarp-demo. MCP tools = Assist / preflight / recovery.
+ * Prefer demos.get → glasswarp-demo. MCP tools = Assist / preflight / recovery.
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -17,8 +17,8 @@ Framing (PRODUCT_MISSION §0):
 
 const PREFLIGHT = `
 Preflight with MCP Assist (short):
-1. list_rigs — need USABLE (online + api_access_enabled)
-2. Optional Live View: start_session → get_live_view_url → end_session
+1. rigs.list — need USABLE (online + api_access_enabled)
+2. Optional Live View: session.start → session.live_view → session.end
    (demo scripts open their own session)
 `.trim();
 
@@ -30,7 +30,7 @@ function showcasePlaybook(demoId: "minesweeper" | "mona-lisa"): string {
     FRAMING,
     PREFLIGHT,
     "",
-    "**Preferred:** call `get_demo` (or read the card below), then run the command.",
+    "**Preferred:** call `demos.get` (or read the card below), then run the command.",
     "Do **not** put the chat model in the observe→decide→act inner loop.",
     "",
     formatDemoCard(d),
@@ -41,9 +41,9 @@ export function registerDemoPrompts(server: McpServer): void {
   server.registerPrompt(
     "demo_mona_lisa",
     {
-      title: "Demo: Mona Lisa (get_demo → glasswarp-demo)",
+      title: "Demo: Mona Lisa (demos.get → glasswarp-demo)",
       description:
-        "Showcase lane: get_demo mona-lisa, then run glasswarp-demo. MCP Assist for preflight only.",
+        "Showcase lane: demos.get mona-lisa, then run glasswarp-demo. MCP Assist for preflight only.",
       argsSchema: {
         notes: z.string().optional().describe("Optional extra instructions"),
       },
@@ -66,9 +66,9 @@ export function registerDemoPrompts(server: McpServer): void {
   server.registerPrompt(
     "demo_minesweeper",
     {
-      title: "Demo: Minesweeper (get_demo → glasswarp-demo)",
+      title: "Demo: Minesweeper (demos.get → glasswarp-demo)",
       description:
-        "Showcase lane: get_demo minesweeper, then run glasswarp-demo. Deterministic loop as brain.",
+        "Showcase lane: demos.get minesweeper, then run glasswarp-demo. Deterministic loop as brain.",
       argsSchema: {
         notes: z.string().optional().describe("Optional extra instructions"),
       },
