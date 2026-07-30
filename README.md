@@ -12,20 +12,15 @@
 
 **Open:** this MCP server + the [Python SDK](https://github.com/glasswarp/python-sdk). **Not open:** the Windows host agent and Glasswarp platform (gateway, console, billing).
 
-## Start here (60 seconds)
+## Start here
 
-Glasswarp controls a **Windows PC you own** — not a cloud desktop. Do this once:
+1. **API key** — [console](https://www.glasswarp.com/console) → copy `gw_…`
+2. **Windows PC** — [install](https://www.glasswarp.com/downloads) → [pair](https://www.glasswarp.com/pair) → enable **API access**
+3. **Paste the key** as `GLASSWARP_API_KEY` (or `Authorization: Bearer gw_…` on `https://mcp.glasswarp.com/mcp`)
 
-1. **Create an API key** — [Sign up / Console → API Keys](https://www.glasswarp.com/console) → copy `gw_…`
-2. **Pair a Windows rig** — [Download the host](https://www.glasswarp.com/downloads) → [pair](https://www.glasswarp.com/pair) → enable **API access** on that rig
-3. **Connect MCP** (pick one):
-   - **Glama / Install Server** — paste the key into `GLASSWARP_API_KEY`, then Install
-   - **Cursor** — paste the JSON below (replace the placeholder key)
-   - **Remote URL** — `https://mcp.glasswarp.com/mcp` with header `Authorization: Bearer gw_…`
+Say *“List my rigs.”* You need a **USABLE** machine.
 
-Then ask the agent: *“List my rigs.”* You want a **USABLE** machine. Workflow: `rigs.list` → `session.start` → `screen.observe` → act → `session.end`.
-
-Full guide: [docs.glasswarp.com/get-started/mcp](https://docs.glasswarp.com/get-started/mcp)
+[Docs](https://docs.glasswarp.com/get-started/mcp) · [hello@glasswarp.com](mailto:hello@glasswarp.com)
 
 ## Quick connect
 
