@@ -1,32 +1,26 @@
 # Glasswarp MCP Server
 
-**See and control a real Windows PC you own — from any MCP client, locally or remotely.** [Model Context Protocol](https://modelcontextprotocol.io) over the Glasswarp Platform API: observe (UIA + screenshots), click/type/drag/scroll, launch apps, owner Live View. Hosted MCP or `npx @glasswarp/mcp`. BYOH: your machine, your key; you bring the model (task logic).
+**See and control a real Windows PC you own** — from any MCP client. Observe, click, type, launch apps, Live View. You bring the model; Glasswarp is eyes and hands.
+
+No cloud desktop — install our host on **your** Windows machine.
 
 | | |
 | --- | --- |
 | **Remote URL** | `https://mcp.glasswarp.com/mcp` |
 | **Auth** | `Authorization: Bearer gw_…` ([create a key](https://www.glasswarp.com/console)) |
 | **Docs** | [docs.glasswarp.com/get-started/mcp](https://docs.glasswarp.com/get-started/mcp) |
-| **License** | Apache-2.0 |
-| **Registry** | Official MCP: `com.glasswarp/mcp-server` |
-
-**Open:** this MCP server + the [Python SDK](https://github.com/glasswarp/python-sdk). **Not open:** the Windows host agent and Glasswarp platform (gateway, console, billing).
 
 ## Start here
 
-1. **API key** — [console](https://www.glasswarp.com/console) → copy `gw_…`
+1. **API key** — [Console](https://www.glasswarp.com/console) → create key → copy `gw_…`
 2. **Windows PC** — [install](https://www.glasswarp.com/downloads) → [pair](https://www.glasswarp.com/pair) → enable **API access**
-3. **Paste the key** as `GLASSWARP_API_KEY` (or `Authorization: Bearer gw_…` on `https://mcp.glasswarp.com/mcp`)
+3. **Paste the key** as `GLASSWARP_API_KEY` (or `Authorization: Bearer gw_…` on the remote URL)
 
 Say *“List my rigs.”* You need a **USABLE** machine.
 
 [Docs](https://docs.glasswarp.com/get-started/mcp) · [hello@glasswarp.com](mailto:hello@glasswarp.com)
 
-## Quick connect
-
-### Cursor (recommended) — `npx @glasswarp/mcp`
-
-Local stdio bridge to the remote server (same tools; needs a paired rig + API key):
+## Connect (Cursor)
 
 ```json
 {
@@ -42,105 +36,27 @@ Local stdio bridge to the remote server (same tools; needs a paired rig + API ke
 }
 ```
 
-If bare `npx` fails inside Cursor (`ENOENT` under `Cursor.app`), use an absolute path (e.g. `/opt/homebrew/bin/npx`) and set `PATH` accordingly.
+Same tools via remote URL `https://mcp.glasswarp.com/mcp` when the client supports headers. More clients: [docs](https://docs.glasswarp.com/get-started/mcp).
 
-Package source: [`sdk/mcp`](../sdk/mcp) → npm `@glasswarp/mcp`.
+## Workflow
 
-### Cursor — raw `mcp-remote` (equivalent)
-
-```json
-{
-  "mcpServers": {
-    "glasswarp": {
-      "command": "/opt/homebrew/bin/npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://mcp.glasswarp.com/mcp",
-        "--header",
-        "Authorization:${GLASSWARP_AUTH}"
-      ],
-      "env": {
-        "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
-        "GLASSWARP_AUTH": "Bearer gw_live_sk_REPLACE_WITH_YOUR_KEY"
-      }
-    }
-  }
-}
-```
-
-| OS | `command` | `PATH` |
-| --- | --- | --- |
-| macOS Apple Silicon | `/opt/homebrew/bin/npx` | `/opt/homebrew/bin:/usr/bin:/bin` |
-| macOS Intel | `/usr/local/bin/npx` | `/usr/local/bin:/usr/bin:/bin` |
-| Windows | `npx` (or full `npx.cmd`) | (default Node) |
-| Linux | `/usr/bin/npx` (or nvm path) | `/usr/bin:/bin` |
-
-Restart MCP, then call `rigs.list`.
-
-### Direct remote URL (clients that support headers)
-
-```json
-{
-  "mcpServers": {
-    "glasswarp": {
-      "url": "https://mcp.glasswarp.com/mcp",
-      "headers": {
-        "Authorization": "Bearer gw_live_sk_REPLACE_WITH_YOUR_KEY"
-      }
-    }
-  }
-}
-```
-
-## Standard workflow
-
-```
-rigs.list → session.start → screen.observe → act (prefer input.send_actions) → session.end
-```
-
-Short tasks stay on MCP. Longer tasks: offer a scaffolded SDK agent / `glasswarp-demo` when the client can run code — never impose it.
+`rigs.list` → `session.start` → `screen.observe` → act → `session.end`  
+Prefer `input.send_actions` for multi-step work. Always end the session.
 
 ## Tools
 
 | Tool | Role |
 | --- | --- |
 | `rigs.list` | Find a USABLE paired Windows machine |
-| `session.start` / `session.end` | Metered session lifecycle (always end) |
-| `screen.observe` | UIA targets + text (JPEG opt-in via `image=true`) |
-| `input.click_target` / `input.click_xy` / `input.type_text` / `input.send_keys` / `input.drag` / `input.scroll` | Single acts |
-| `input.send_actions` | Preferred multi-step batch (1–10) |
+| `session.start` / `session.end` | Metered session (always end) |
+| `screen.observe` | UIA targets + text (`image=true` for JPEG) |
+| `input.*` | click, type, keys, drag, scroll, `send_actions` |
 | `app.launch` | Start an exe on the rig |
-| `session.live_view` | Owner Live View link |
-| `session.status` | Billing / status signals |
-| `demos.list` / `demos.get` | Showcase run contracts (no solver execution) |
+| `session.live_view` / `session.status` | Owner Live View · billing signals |
+| `demos.list` / `demos.get` | Showcase run contracts |
 
-## Run locally (dev)
+## More
 
-```bash
-cd mcp-server
-npm install
-npm run dev
-# POST http://127.0.0.1:8787/mcp
-```
-
-```bash
-GLASSWARP_API_BASE_URL=http://127.0.0.1:8080 npm run dev
-```
-
-Health: `GET /health` · `GET /healthz` · `GET /ping`
-
-## Auth notes
-
-Full API keys are never logged (prefix/suffix redaction only). Directory probes may call `initialize` / `tools/list` without a key; `tools/call` always requires Bearer auth.
-
-## Tests
-
-```bash
-npm test
-npm run build
-```
-
-## Design
-
-Product design: [docs.glasswarp.com](https://docs.glasswarp.com/get-started/mcp) · messaging: eyes and hands, not the brain.
+- npm: [`@glasswarp/mcp`](https://www.npmjs.com/package/@glasswarp/mcp) · registry: `com.glasswarp/mcp-server` · Apache-2.0
+- **Open:** this MCP server + [Python SDK](https://github.com/glasswarp/python-sdk). **Not open:** Windows host agent and platform (gateway, console, billing).
+- Local dev / tests: see repo `package.json` scripts (`npm run dev`, `npm test`)
