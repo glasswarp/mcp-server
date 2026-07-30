@@ -34,9 +34,32 @@ import {
 const LEGACY_ASSIST_SHOWCASE_URI = "glasswarp://guide/assist-showcase-build";
 const LEGACY_MCP_VS_SDK_URI = "glasswarp://guide/mcp-vs-sdk";
 
+/** Shared tool output — named fields required for Smithery / MCP best-practice scoring. */
+const toolOutSchema = {
+  ok: z.boolean().describe("False when the tool failed"),
+  message: z.string().describe("Human-readable result for the agent"),
+};
+
+const observeOutSchema = {
+  ok: z.boolean().describe("False when the tool failed"),
+  message: z.string().describe("Human-readable observe summary / targets"),
+  changed: z
+    .boolean()
+    .nullable()
+    .optional()
+    .describe("Whether the frame changed since last observe; null if unknown"),
+  has_image: z
+    .boolean()
+    .optional()
+    .describe("True when a JPEG was included in the MCP content"),
+  native_width: z.number().int().optional().describe("Native capture width"),
+  native_height: z.number().int().optional().describe("Native capture height"),
+};
+
 function textResult(text: string, isError = false) {
   return {
     content: [{ type: "text" as const, text }],
+    structuredContent: { ok: !isError, message: text },
     isError,
   };
 }
@@ -151,24 +174,48 @@ function shapeFromApiObserve(
 function mcpObserveContent(
   shaped: ObserveShapeResult,
   jpeg_base64?: string | null,
+  meta?: {
+    changed?: boolean | null;
+    native_width?: number;
+    native_height?: number;
+  },
 ): {
   content: Array<
     | { type: "image"; data: string; mimeType: string }
     | { type: "text"; text: string }
   >;
+  structuredContent: {
+    ok: boolean;
+    message: string;
+    changed?: boolean | null;
+    has_image: boolean;
+    native_width?: number;
+    native_height?: number;
+  };
 } {
+  const hasImage = !!(shaped.includeImage && jpeg_base64);
   const content: Array<
     | { type: "image"; data: string; mimeType: string }
     | { type: "text"; text: string }
   > = [{ type: "text" as const, text: shaped.text }];
-  if (shaped.includeImage && jpeg_base64) {
+  if (hasImage && jpeg_base64) {
     content.unshift({
       type: "image" as const,
       data: jpeg_base64,
       mimeType: "image/jpeg",
     });
   }
-  return { content };
+  return {
+    content,
+    structuredContent: {
+      ok: true,
+      message: shaped.text,
+      changed: meta?.changed ?? null,
+      has_image: hasImage,
+      native_width: meta?.native_width,
+      native_height: meta?.native_height,
+    },
+  };
 }
 
 /** Real client, or a gate that rejects any API call (anonymous discovery only). */
@@ -307,6 +354,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "list_demos",
     {
+      outputSchema: toolOutSchema,
       description:
         "List showcase run contracts (id, title, install, command). Read-only catalog — does NOT start a session, touch a rig, or run solvers. Use when the user asks for Minesweeper/Mona Lisa/Paint demos or you need the glasswarp-demo command. Prefer get_demo for one full card. For ad-hoc UI work use list_rigs → start_session → observe instead.",
       annotations: { readOnlyHint: true, openWorldHint: false },
@@ -328,6 +376,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "get_demo",
     {
+      outputSchema: toolOutSchema,
       description:
         "Return one showcase run contract (install, command, needs, framing). Does NOT execute the demo or control a PC. Call after list_demos when you know the demo_id. If the client can run shell, offer the command; if chat-only, show the card. Do not replace this with a slow MCP click loop for solver demos.",
       annotations: { readOnlyHint: true, openWorldHint: false },
@@ -359,6 +408,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "list_rigs",
     {
+      outputSchema: toolOutSchema,
       description:
         "List Windows machines (rigs) paired to this API key: id, name, online, api_access_enabled, and USABLE flag. Read-only — does not start a session. Call first before start_session. A rig is USABLE only when online AND the owner enabled API access. If none are USABLE, tell the user to install the host agent, pair in Console → Rigs, and enable API access — never ask for OS passwords.",
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -398,6 +448,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "start_session",
     {
+      outputSchema: toolOutSchema,
       description:
         "Start a metered desktop session on a USABLE rig from list_rigs. Side effects: begins wall-clock billing, shows an on-screen “API session active” indicator, enables observe/input until end_session. Idle sessions auto-end after ~15 minutes. Always call end_session when done or abandoning. Do not call if no USABLE rig exists. Returns session_id and Live View URL (owner console login required).",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -428,6 +479,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "end_session",
     {
+      outputSchema: toolOutSchema,
       description:
         "End an active session. Side effects: stops billing, runs host safety_restore, closes apps launched via launch_app. Always call when finished or abandoning — do not leave sessions open. Safe to call once; further observe/input on that session_id will fail.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -448,6 +500,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "observe",
     {
+      outputSchema: observeOutSchema,
       description:
         "Read the current screen: UIA targets (numbered ids + native coords) and a text summary. Does not move mouse/keyboard. Default image=false (no JPEG) for speed; set image=true only when you must judge pixels visually (then max_width≈960, quality≈60). If changed=false, JPEG is omitted even when requested — do not re-analyze; wait or act differently. If dirty is null, assume changed. Prefer send_actions for multi-step UI; observe after meaningful steps, not after every click. Target ids are valid only until the next UI change.",
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -499,7 +552,11 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
           image: wantImage,
         });
         const shaped = shapeFromApiObserve(obs, { wantImage });
-        return mcpObserveContent(shaped, obs.jpeg_base64);
+        return mcpObserveContent(shaped, obs.jpeg_base64, {
+          changed: obs.changed ?? null,
+          native_width: obs.native_width,
+          native_height: obs.native_height,
+        });
       } catch (e) {
         return errResult(e);
       }
@@ -509,6 +566,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "click_target",
     {
+      outputSchema: toolOutSchema,
       description:
         "Left/right/middle-click a UIA target by id from the latest observe (uses native center coords). Prefer over click_xy. Side effect: real mouse click on the remote Windows desktop. Do not reuse target_id after the screen may have changed — re-observe first. For click→type→keys sequences, use send_actions (one turn) instead of chaining this tool.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -552,6 +610,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "click_xy",
     {
+      outputSchema: toolOutSchema,
       description:
         "Click at native screen coordinates (0…native_width-1, 0…native_height-1 from observe). Last resort when no suitable UIA target exists — prefer click_target. Never use JPEG/downscaled pixel coords. Side effect: real mouse click on the remote desktop.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -584,6 +643,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "type_text",
     {
+      outputSchema: toolOutSchema,
       description:
         "Type a Unicode string into the currently focused control via native input. Does not click first — focus the field (click_target / send_actions) before calling. Side effect: keystrokes on the remote desktop. For form fills (click → type → tab/enter), prefer send_actions in one call.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -605,6 +665,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "send_keys",
     {
+      outputSchema: toolOutSchema,
       description:
         "Send a key or chord to the focused window (e.g. enter, tab, ctrl+s, alt+f4, win). Side effect: real key events on the remote desktop. Prefer bundling into send_actions when the shortcut follows a click/type in the same planned sequence. Use type_text for literal strings, not this tool.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -630,6 +691,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "drag",
     {
+      outputSchema: toolOutSchema,
       description:
         "Press-move-release mouse drag in native capture coordinates. Use for drawing, sliders, selection boxes, and drag-and-drop. Side effect: mouse_down → moves → mouse_up on the remote desktop. Prefer send_actions if the drag is one step in a longer predictable sequence.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -676,6 +738,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "scroll",
     {
+      outputSchema: toolOutSchema,
       description:
         "Move the cursor to native (x,y) then apply a vertical mouse-wheel delta. Side effect: scroll on whatever is under that point. Negative delta scrolls toward the bottom of the page. Prefer send_actions when scroll is part of a multi-step sequence. Re-observe after scrolling lists/pages before clicking targets.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -733,6 +796,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "send_actions",
     {
+      outputSchema: observeOutSchema,
       description:
         "PREFERRED multi-step tool: run 1–10 predictable UI actions in one call (click_target, click_xy, type_text, send_keys, drag, scroll). Side effects: all actions execute on the remote desktop; fails fast before sending if any action is invalid. observe_after defaults true (verification observe: text+targets; set observe_image=true for JPEG). Do not batch across unpredictable waits (page loads, installers, modals) — single-step those. Prefer this over chaining solo click/type/keys tools.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -899,7 +963,11 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
             `Executed ${actions.length} action(s) (${events.length} events), then observe:`,
           ],
         });
-        return mcpObserveContent(shaped, obs.jpeg_base64);
+        return mcpObserveContent(shaped, obs.jpeg_base64, {
+          changed: obs.changed ?? null,
+          native_width: obs.native_width,
+          native_height: obs.native_height,
+        });
       } catch (e) {
         return errResult(e);
       }
@@ -909,6 +977,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "launch_app",
     {
+      outputSchema: toolOutSchema,
       description:
         "Launch an executable on the remote Windows rig (name on PATH or absolute path), optional args. Side effects: starts a process; Glasswarp tracks it and closes it on end_session. Use for notepad.exe, mspaint.exe, chrome with URL args, etc. Wait/re-observe after launch before clicking — do not assume the window is focused immediately.",
       annotations: { destructiveHint: true, openWorldHint: true },
@@ -941,6 +1010,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "get_live_view_url",
     {
+      outputSchema: toolOutSchema,
       description:
         "Return the console Live View URL (≈60fps) for the rig owner to watch and intervene. Read-only for the agent — does not grant the API key console access. Offer on long or sensitive tasks. Owner must be signed into Glasswarp; API keys alone cannot open the player.",
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -969,6 +1039,7 @@ export function createGlasswarpMcpServer(apiKey: string | null): McpServer {
   server.registerTool(
     "get_session_status",
     {
+      outputSchema: toolOutSchema,
       description:
         "Fetch session metadata: status, host, mode, created_at, action_count, billed_minutes. Read-only — no input side effects. Use to tell the user about metered time or confirm the session is still active before more actions.",
       annotations: { readOnlyHint: true, openWorldHint: true },
