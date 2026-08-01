@@ -63,5 +63,6 @@ Prefer `input.send_actions` for multi-step work. Always end the session.
 ## More
 
 - npm: [`@glasswarp/mcp`](https://www.npmjs.com/package/@glasswarp/mcp) · registry: `com.glasswarp/mcp-server` · Apache-2.0
+- Directory: [Smithery](https://smithery.ai/servers/glasswarp/mcp-server)
 - **Open:** this MCP server + [Python SDK](https://github.com/glasswarp/python-sdk). **Not open:** Windows host agent and platform (gateway, console, billing).
 - Local dev / tests: see repo `package.json` scripts (`npm run dev`, `npm test`)
